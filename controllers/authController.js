@@ -99,7 +99,36 @@ exports.registerUser = async (req, res) => {
     }
     
   }
+  exports.updateCustomer = async (req, res) => {
+    const { email, name, mobile, customerCity, customerState, customerCountry, customerAddress, } = req.body;
 
+    try {
+        const existingCustomer = await Customer.findOne({ where: { email } });
+
+        if (!existingCustomer) {
+            return res.status(404).json({ message: 'Customer not found' });
+        }
+
+        let updatedData = {
+            name,
+            mobile,
+            customerCity,
+            customerState,
+            customerCountry,
+            customerAddress
+        };
+
+      
+        await Customer.update(updatedData, { where: { email } });
+
+
+
+        res.status(200).json({ message: 'Customer details updated successfully' });
+    } catch (error) {
+        console.log('Error while updating customer:', error);
+        res.status(500).json({ message: 'Error while updating customer details', error });
+    }
+};
 
   exports.getCustomer=async(req,res)=>{
     try{
@@ -116,6 +145,44 @@ exports.registerUser = async (req, res) => {
       }
     }catch(e){
       res.status(500).json({message:"Error while adding customers",error:e})
+      console.log(e);
+    }
+  }
+
+  exports.changeAdminPassword=async(req,res)=>{
+    try{
+      const email=req.body.email;
+      const password=req.body.password;
+      const user=await User.findOne({where:{email:email}});
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const hashedPassword=await bcrypt.hash(password,10);
+      await user.update({ password: hashedPassword });
+      return res.status(200).json({message:"Password Reset Succesfully"});
+
+    }catch(e){
+      res.status(500).json(e);
+      console.log(e);
+    }
+  }
+
+  exports.changeCustomerPassword=async(req,res)=>{
+    try{
+      const email=req.body.email;
+      const password=req.body.password;
+      const user=await Customer.findOne({where:{email:email}});
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const hashedPassword=await bcrypt.hash(password,10);
+      await user.update({ password: hashedPassword });
+      return res.status(200).json({message:"Password Reset Succesfully"});
+
+    }catch(e){
+      res.status(500).json(e);
       console.log(e);
     }
   }
