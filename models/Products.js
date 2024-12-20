@@ -71,6 +71,10 @@ const Product = sequelize.define('Product', {
       notEmpty: { msg: 'Product description cannot be empty' },
     },
   },
+  winner: {
+      type: DataTypes.JSON,  // Store winner details as a JSON object
+      allowNull: true,
+    },
 }, {
   timestamps: true,  
   underscored: true,

@@ -3,7 +3,7 @@ const { createProduct, getProducts, getProductById } = require("../controllers/p
 const express = require('express');
 const router = express.Router();
 
-// Route for creating a product
+
 router.post('/create', createProduct);
 router.get('/all',getProducts);
 router.get('/:id',getProductById);

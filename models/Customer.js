@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize");
+const { DataTypes,Sequelize } = require("sequelize");
 const { sequelize } = require("../config/db");
 
 
@@ -33,6 +33,11 @@ const Customer=sequelize.define('Customer',{
         type:DataTypes.STRING,
         allowNull:true,
     },
+    customerBids:{
+        type:Sequelize.TEXT,
+        allowNull:true,
+
+    }
 
 
 })

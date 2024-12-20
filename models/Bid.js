@@ -1,6 +1,6 @@
-// models/Bid.js
-const { DataTypes, } = require('sequelize');
-const {sequelize} = require('../config/db'); // Import your Sequelize instance
+// Bid.js (remove the associate method)
+const { Sequelize, DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
 
 const Bid = sequelize.define('Bid', {
   id: {
@@ -8,23 +8,38 @@ const Bid = sequelize.define('Bid', {
     primaryKey: true,
     autoIncrement: true,
   },
-  productId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  userName: {
+  userEmail: {
     type: DataTypes.STRING,
     allowNull: false,
+    validate: {
+      notNull: { msg: 'User email is required' },
+      isEmail: { msg: 'Must be a valid email' },
+    },
   },
+  
   bidAmount: {
     type: DataTypes.FLOAT,
     allowNull: false,
+    validate: {
+      notNull: { msg: 'Bid amount is required' },
+      isFloat: { msg: 'Bid amount must be a number' },
+    },
   },
-  createdAt: {
-    type: DataTypes.DATE,
+
+  productId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'Products',
+      key: 'id',
+    },
     allowNull: false,
-    defaultValue: DataTypes.NOW,
+    validate: {
+      notNull: { msg: 'Product ID is required' },
+    },
   },
+}, {
+  timestamps: true,
+  underscored: true,
 });
 
-module.exports = Bid;
+module.exports = { Bid };

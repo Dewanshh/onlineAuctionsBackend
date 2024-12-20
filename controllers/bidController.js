@@ -1,4 +1,4 @@
-const Bid = require('../models/Bid');
+const {Bid} = require('../models/Bid');
 const { Customer } = require('../models/Customer');
 
 module.exports = {
@@ -6,12 +6,13 @@ module.exports = {
     try {
       const { productId } = req.params;
       const bids = await Bid.findAll({
-        where: { productId },
+        where: { productId:productId },
         order: [['createdAt', 'DESC']], 
       });
+      // console.log(bids)
       res.status(200).json(bids);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching bids', error });
+      res.status(500).json({ message: 'Error fetching bids',error:error});
     }
   },
 
@@ -23,33 +24,40 @@ module.exports = {
         return res.status(400).json({ message: 'All fields are required' });
       }
 
-      const user = await Customer.findOne({ where: { email: email } });
-
-      const userName = user ? user.name : "Dummy";
-
       const highestBid = await Bid.findOne({
         where: { productId },
-        order: [['bidAmount', 'DESC']], 
+        order: [['createdAt', 'DESC']],
       });
 
-      if (!highestBid) {
-        const newBid = await Bid.create({ productId, userName, bidAmount });
-        return res.status(201).json(newBid);
-      }
-
-      if (highestBid.userName === userName) {
+      if (highestBid && highestBid.userEmail === email) {
         return res.status(400).json({
           message: 'You cannot bid again until someone else places a higher bid',
         });
       }
 
-      if (bidAmount <= highestBid.bidAmount) {
+      if (highestBid && bidAmount <= highestBid.bidAmount) {
         return res.status(400).json({
           message: `Your bid must be higher than the current highest bid of Rs. ${highestBid.bidAmount}`,
         });
       }
 
-      const newBid = await Bid.create({ productId, userName, bidAmount });
+      const newBid = await Bid.create({ productId, userEmail: email, bidAmount });
+
+      const customer = await Customer.findOne({ where: { email } });
+      if (customer) {
+
+        const customerBids = customer.customerBids
+          ? JSON.parse(customer.customerBids)
+          : [];
+
+
+        if (!customerBids.includes(productId.toString())) {
+          customerBids.push(productId.toString());
+          customer.customerBids = JSON.stringify(customerBids); 
+          await customer.save();
+        }
+      }
+
       res.status(201).json(newBid);
     } catch (error) {
       res.status(500).json({ message: 'Error placing bid', error });

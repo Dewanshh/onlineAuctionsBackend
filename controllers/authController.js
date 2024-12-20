@@ -83,7 +83,8 @@ exports.registerUser = async (req, res) => {
             customerCity,
             customerAddress,
             customerState,
-            customerCountry
+            customerCountry,
+            customerBids:null,
         });
         const token=jwt.sign(
             {id:newCustomer.id,email:newCustomer.email,role:newCustomer.role},
@@ -97,4 +98,24 @@ exports.registerUser = async (req, res) => {
         res.status(500).json({message:"Error while adding customers",error:e})
     }
     
+  }
+
+
+  exports.getCustomer=async(req,res)=>{
+    try{
+      const email=req.params.email;
+      const customer=await Customer.findOne({where:{email:email}});
+      if(customer)
+      {
+        console.log(customer)
+        return res.status(200).json(customer);
+      }
+      else{
+        res.status(400).json("Customer not Found");
+        console.log("Customer Not Found");
+      }
+    }catch(e){
+      res.status(500).json({message:"Error while adding customers",error:e})
+      console.log(e);
+    }
   }
