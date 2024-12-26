@@ -29,3 +29,17 @@ exports.createSeller = async (req, res) => {
     });
   }
 };
+
+
+exports.fetchSeller = async (req, res) => {
+  try {
+
+    const allSellers=await Seller.findAll();
+    res.status(201).json(allSellers);
+  } catch (error) {
+    res.status(500).json({
+      message: { error: error.message },
+      Error: "Unable to fetch Sellers",
+    });
+  }
+};

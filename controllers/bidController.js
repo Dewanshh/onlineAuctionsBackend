@@ -1,8 +1,10 @@
 const {Bid} = require('../models/Bid');
 const { Customer } = require('../models/Customer');
+const {Product} = require('../models/Products');
+
 
 module.exports = {
-  fetchBids: async (req, res) => {
+  fetchBids: async (req, res) => { 
     try {
       const { productId } = req.params;
       const bids = await Bid.findAll({
@@ -23,7 +25,14 @@ module.exports = {
       if (!productId || !email || !bidAmount) {
         return res.status(400).json({ message: 'All fields are required' });
       }
+      const product=await Product.findByPk(productId);
 
+      if(bidAmount<product.minimumBid)
+      {
+        return res.status(400).json({
+          message:"Bid Should be greater than the minimum bid amount"
+        })
+      }
       const highestBid = await Bid.findOne({
         where: { productId },
         order: [['createdAt', 'DESC']],
